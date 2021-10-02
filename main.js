@@ -54,13 +54,23 @@ function plexLibrariesPluginLoadSharesItem(obj,disabled){
 	var mediaShared = obj['@attributes'].shared
 	var mediaIcon = "0"
 	var checked = "";
-	if (mediaType == "movie") {
-		var mediaIcon = "video-clapper"
-		var mediaIconColour = "purple"
-	}
-	if (mediaType == "show") {
-		var mediaIcon = "video-camera"
-		var mediaIconColour = "warning"
+	switch(mediaType) {
+		case 'movie':
+			var mediaIcon = "video-clapper"
+			var mediaIconColour = "purple"
+			break;
+		case 'show':
+			var mediaIcon = "video-camera"
+			var mediaIconColour = "warning"
+			break;
+		case 'artist':
+			var mediaIcon = "music-alt"
+			var mediaIconColour = "info"
+			break;
+		case 'photo':
+			var mediaIcon = "camera"
+			var mediaIconColour = "danger"
+			break;
 	}
 	if (mediaShared == 1) {
 		var checked = "checked";

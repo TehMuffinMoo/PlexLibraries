@@ -98,12 +98,13 @@ class plexLibrariesPlugin extends Organizr
 						libxml_use_internal_errors(true);
 						$shareXML = simplexml_load_string($response->body);
 					}
+					return $shareXML;
 				} catch (Requests_Exception $e) {
 					$this->writeLog('error', 'PlexLibraries Plugin - Error: ' . $e->getMessage(), 'SYSTEM');
 					$this->setAPIResponse('error', 'PlexLibraries Plugin - Error: ' . $e->getMessage(), 400);
 					return false;
 				}
-				return $shareXML;
+				return false;
 			} else {
 				$UserData = $userXML->xpath('//User[@username="'.$Username.'"]');
 				$url = 'https://plex.tv/api/servers/'.$this->config['plexID'].'/shared_servers/'.$UserData[0]->Server->attributes()->id;
@@ -122,12 +123,13 @@ class plexLibrariesPlugin extends Organizr
 							}
 						}
 					}
+					return $shareXML;
 				} catch (Requests_Exception $e) {
 					$this->writeLog('error', 'PlexLibraries Plugin - Error: ' . $e->getMessage(), 'SYSTEM');
 					$this->setAPIResponse('error', 'PlexLibraries Plugin - Error: ' . $e->getMessage(), 400);
 					return false;
 				}
-				return $shareXML;
+				return false;
 			}
 		}
 	}
