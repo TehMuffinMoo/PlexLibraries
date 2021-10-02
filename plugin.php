@@ -72,38 +72,62 @@ class plexLibrariesPlugin extends Organizr
 
 	public function getPlexShares($includeAll = false) {
 		if (!empty($this->config['plexToken'])) {
-			$url = 'https://plex.tv/api/users';
 			$headers = array(
 				'Content-type: application/xml',
 				'X-Plex-Token' => $this->config['plexToken'],
 			);
-			$response = Requests::get($url, $headers, array());
-			libxml_use_internal_errors(true);
-			$userXML = simplexml_load_string($response->body);
+			$url = 'https://plex.tv/api/users';
+			try {
+				$response = Requests::get($url, $headers, array());
+				if ($response->success) {
+					libxml_use_internal_errors(true);
+					$userXML = simplexml_load_string($response->body);
+				}
+			} catch (Requests_Exception $e) {
+				$this->writeLog('error', 'PlexLibraries Plugin - Error: ' . $e->getMessage(), 'SYSTEM');
+				$this->setAPIResponse('error', 'PlexLibraries Plugin - Error: ' . $e->getMessage(), 400);
+				return false;
+			}
 
 		    $Username = $this->user['username'];
 			if ($Username == $this->config['plexAdmin']) {
 				$url = 'https://plex.tv/api/servers/'.$this->config['plexID'].'/shared_servers/';
-				$response = Requests::get($url, $headers, array());
-				libxml_use_internal_errors(true);
-				$userXML = simplexml_load_string($response->body);
-				return $userXML;
+				try {
+					$response = Requests::get($url, $headers, array());
+					if ($response->success) {
+						libxml_use_internal_errors(true);
+						$shareXML = simplexml_load_string($response->body);
+					}
+				} catch (Requests_Exception $e) {
+					$this->writeLog('error', 'PlexLibraries Plugin - Error: ' . $e->getMessage(), 'SYSTEM');
+					$this->setAPIResponse('error', 'PlexLibraries Plugin - Error: ' . $e->getMessage(), 400);
+					return false;
+				}
+				return $shareXML;
 			} else {
 				$UserData = $userXML->xpath('//User[@username="'.$Username.'"]');
 				$url = 'https://plex.tv/api/servers/'.$this->config['plexID'].'/shared_servers/'.$UserData[0]->Server->attributes()->id;
-				$response = Requests::get($url, $headers, array());
-				libxml_use_internal_errors(true);
-				$userXML = simplexml_load_string($response->body);
-				if (!$includeAll) {
-					$librariesToInclude = explode(",",$this->config['PLEXLIBRARIES-librariesToInclude']);
-					foreach ($userXML->xpath('//Section') as $share) {
-						if (!in_array($share->attributes()->key, $librariesToInclude)) {
-							$key = $share->attributes()->key;
-							unset($share[0]);
+				try {
+					$response = Requests::get($url, $headers, array());
+					if ($response->success) {
+						libxml_use_internal_errors(true);
+						$shareXML = simplexml_load_string($response->body);
+						if (!$includeAll) {
+							$librariesToInclude = explode(",",$this->config['PLEXLIBRARIES-librariesToInclude']);
+							foreach ($shareXML->xpath('//Section') as $share) {
+								if (!in_array($share->attributes()->key, $librariesToInclude)) {
+									$key = $share->attributes()->key;
+									unset($share[0]);
+								}
+							}
 						}
 					}
+				} catch (Requests_Exception $e) {
+					$this->writeLog('error', 'PlexLibraries Plugin - Error: ' . $e->getMessage(), 'SYSTEM');
+					$this->setAPIResponse('error', 'PlexLibraries Plugin - Error: ' . $e->getMessage(), 400);
+					return false;
 				}
-				return $userXML;
+				return $shareXML;
 			}
 		}
 	}
@@ -136,7 +160,7 @@ class plexLibrariesPlugin extends Organizr
 			if (!in_array($data["shareId"], $NewShares)) {
 				$NewShares[] = $data["shareId"];
 			}
-			$Msg = "Enabling ".$data["shareId"].$shares->Section;
+			$Msg = "Enabling ".$data["shareId"];
 		} else {
 			$Shares = $this->getPlexShares(true);
 			$xpath = $Shares->xpath('//SharedServer//Section[@shared="1"]');

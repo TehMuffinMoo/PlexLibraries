@@ -5,8 +5,5 @@
  */
 return array(
 	'PLEXLIBRARIES-enabled' => false,
-	'plexToken' => '',
-	'plexMachine' => '',
-	'plexAdmin' => '',
 	'PLEXLIBRARIES-librariesToInclude' => '',
 );
