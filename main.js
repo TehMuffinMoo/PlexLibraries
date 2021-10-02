@@ -17,6 +17,11 @@ function plexLibrariesPluginLaunch(){
 				<div class="panel-body">
 					<div id="plexLibrariesTable">
 						<div class="white-box m-b-0">
+							<div class="col-12" style="width: 1514px">
+								<select name="plexUsers" id="plexUsers" style="width: 26%">
+										<option value="">- Plex User -</option>
+								</select><br>
+							</div>
 							<div class="user-btm-box" id="plexLibraries">
 							</div>
 						</div>
@@ -35,6 +40,8 @@ function plexLibrariesPluginLoadShares(){
 		$(function() {
 			// Plex Admin response contains all users shares, mark all toggles as disabled whilst this is a work in progress.
 			$.each(data.response.data.SharedServer, function(_, sharedServer) {
+				const thtml = $("#plexUsers ");
+				thtml.append('<option value="'+sharedServer['@attributes'].username+'">'+sharedServer['@attributes'].username+'</option>');
 				$.each(sharedServer.Section, function(_, obj) {
 					plexLibrariesPluginLoadSharesItem(obj,"disabled");
 				});
