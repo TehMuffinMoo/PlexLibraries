@@ -26,7 +26,7 @@ function plexLibrariesPluginLaunch(){
 												</select><br>
 											</div>
 										</div>
-										<div class="table-responsive plexLibrariesTableList hidden">
+										<div class="table-responsive plexLibrariesTableList hidden" id="plexLibrariesTableList">
 											<table class="table color-bordered-table purple-bordered-table">
 												<thead>
 													<tr>
@@ -61,8 +61,14 @@ function plexLibrariesPluginLoadShares(){
 		$(function() {
 			// Single Response
 			if (data.response.data.plexAdmin == false) {
-				$.each(data.response.data.libraryData, function(_, obj) {
-						plexLibrariesPluginLoadSharesItem(obj,"","","");
+				$.each(data.response.data.libraryData, function(_, sharedServer) {
+					$.each(sharedServer.libraries, function(_, obj) {
+						var userId = sharedServer.id;
+						plexLibrariesPluginLoadSharesItem(obj,"","",userId);
+						if($('.plexLibrariesTableList').hasClass('hidden')){
+							$('.plexLibrariesTableList').removeClass('hidden');
+						}
+					});
 				});
 			} else {
 				// Plex Admin response contains all users shares, mark all toggles as disabled whilst this is a work in progress.
@@ -113,13 +119,10 @@ function plexLibrariesPluginLoadSharesItem(obj,disabled,username,userId){
 		var checked = "checked";
 	}
 	if (username === "") {
-		var display = "true"
 		var username = "none"
-	} else {
-		var display = "none"
 	}
 	let libItem = `
-		<tr class="plexUser ${username}" style="display: ${display}">
+		<tr class="plexUser ${username}">
 			<td><p class="text-${mediaIconColour}"><i class="ti-${mediaIcon} fa-2x"></i></p></td>
 			<td>${obj.title}</td>
 			<td><input type="checkbox" class="js-switch plexLibraries" data-size="small" data-color="#99d683" data-secondary-color="#f96262" data-user-id="${userId}" value="${obj.id}" ${checked} ${disabled}></td>
