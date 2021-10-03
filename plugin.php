@@ -70,7 +70,7 @@ class plexLibrariesPlugin extends Organizr
 	}
 
 
-	public function getPlexShares($includeAll = false) {
+	public function getPlexShares($includeAll = false,$userId) {
 		if (!empty($this->config['plexToken'])) {
 			$headers = array(
 				'Content-type: application/xml',
@@ -90,7 +90,7 @@ class plexLibrariesPlugin extends Organizr
 			}
 
 		    $Username = $this->user['username'];
-			if ($Username == $this->config['plexAdmin']) {
+			if ($Username == $this->config['plexAdmin'] && !$userId) {
 				$url = 'https://plex.tv/api/servers/'.$this->config['plexID'].'/shared_servers/';
 				try {
 					$response = Requests::get($url, $headers, array());
@@ -107,7 +107,11 @@ class plexLibrariesPlugin extends Organizr
 				return false;
 			} else {
 				$UserData = $userXML->xpath('//User[@username="'.$Username.'"]');
-				$url = 'https://plex.tv/api/servers/'.$this->config['plexID'].'/shared_servers/'.$UserData[0]->Server->attributes()->id;
+				if ($userId) {
+					$url = 'https://plex.tv/api/servers/'.$this->config['plexID'].'/shared_servers/'.$userId;	
+				} else {
+					$url = 'https://plex.tv/api/servers/'.$this->config['plexID'].'/shared_servers/'.$UserData[0]->Server->attributes()->id;
+				}
 				try {
 					$response = Requests::get($url, $headers, array());
 					if ($response->success) {
@@ -155,7 +159,7 @@ class plexLibrariesPlugin extends Organizr
 		$shareId = $shareData[0];
 		$userId = $shareData[1];
 		if ($data["checked"] == "checked") {
-			$Shares = $this->getPlexShares(true);
+			$Shares = $this->getPlexShares(true,$userId);
 			$xpath = $Shares->xpath('//SharedServer//Section[@shared="1"]');
 			$NewShares = array();
 			foreach ($xpath as $Share) {
@@ -167,7 +171,7 @@ class plexLibrariesPlugin extends Organizr
 			}
 			$Msg = "Enabling ".$shareId." on user: ".$userId;
 		} else {
-			$Shares = $this->getPlexShares(true);
+			$Shares = $this->getPlexShares(true,$userId);
 			$xpath = $Shares->xpath('//SharedServer//Section[@shared="1"]');
 			$NewShares = array();
 			foreach ($xpath as $Share) {
