@@ -150,7 +150,6 @@ class plexLibrariesPlugin extends Organizr
 					$this->setResponse(500, 'Plex Error', $response->body);
 					return false;
 				}
-				return $shareXML;
 			} catch (Requests_Exception $e) {
 				$this->writeLog('error', 'PlexLibraries Plugin - Error: ' . $e->getMessage(), 'SYSTEM');
 				$this->setAPIResponse('error', 'PlexLibraries Plugin - Error: ' . $e->getMessage(), 400);
@@ -201,7 +200,7 @@ class plexLibrariesPlugin extends Organizr
 			}
 		}
 		if (empty($NewShares)) {
-			$this->setAPIResponse('error', 'You must have at least one share.', 400);
+			$this->setResponse(409, 'You must have at least one share.');
 			return false;
 		} else {
 			$http_body = [

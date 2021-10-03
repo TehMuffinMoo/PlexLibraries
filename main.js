@@ -64,7 +64,7 @@ function plexLibrariesPluginLoadShares(){
 				$.each(data.response.data.libraryData, function(_, sharedServer) {
 					$.each(sharedServer.libraries, function(_, obj) {
 						var userId = sharedServer.id;
-						plexLibrariesPluginLoadSharesItem(obj,"","",userId);
+						plexLibrariesPluginLoadSharesItem(obj,"",userId);
 						if($('.plexLibrariesTableList').hasClass('hidden')){
 							$('.plexLibrariesTableList').removeClass('hidden');
 						}
@@ -80,7 +80,7 @@ function plexLibrariesPluginLoadShares(){
 					var userId = sharedServer.id;
 					thtml.append('<option value="'+username+'">'+username+'</option>');
 					$.each(sharedServer.libraries, function(_, obj) {
-						plexLibrariesPluginLoadSharesItem(obj,"",username,userId);
+						plexLibrariesPluginLoadSharesItem(obj,username,userId);
 					});
 				});
 			}
@@ -91,7 +91,7 @@ function plexLibrariesPluginLoadShares(){
 	});
 }
 
-function plexLibrariesPluginLoadSharesItem(obj,disabled,username,userId){
+function plexLibrariesPluginLoadSharesItem(obj,username,userId){
 	const thtml = $("#plexLibraries ");
 	var mediaType = obj.type
 	var mediaShared = obj.shared
@@ -125,7 +125,7 @@ function plexLibrariesPluginLoadSharesItem(obj,disabled,username,userId){
 		<tr class="plexUser ${username}">
 			<td><p class="text-${mediaIconColour}"><i class="ti-${mediaIcon} fa-2x"></i></p></td>
 			<td>${obj.title}</td>
-			<td><input type="checkbox" class="js-switch plexLibraries" data-size="small" data-color="#99d683" data-secondary-color="#f96262" data-user-id="${userId}" value="${obj.id}" ${checked} ${disabled}></td>
+			<td><input type="checkbox" class="js-switch plexLibraries" data-size="small" data-color="#99d683" data-secondary-color="#f96262" data-user-id="${userId}" value="${obj.id}" ${checked}></td>
 		</tr>
 	`;
 		thtml.append(libItem);
