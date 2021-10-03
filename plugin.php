@@ -172,6 +172,19 @@ class plexLibrariesPlugin extends Organizr
 			$this->setResponse(409, 'Share Id not supplied');
 			return false;
 		}
+		if (!$this->qualifyRequest(1)) {
+			$plexUsers = $this->allPlexUsers(false, true);
+			$key = array_search($this->user['email'], array_column($plexUsers, 'email'));
+			if (!$key) {
+				$this->setResponse(404, 'User Id was not found in Plex Users');
+				return false;
+			} else {
+				if ($plexUsers[$key]['shareId'] !== $userId) {
+					$this->setResponse(401, 'You are not allowed to edit someone else\'s plex share');
+					return false;
+				}
+			}
+		}
 		$Shares = $this->plexLibrariesPluginGetPlexShares(true, $userId);
 		$NewShares = array();
 		if ($Shares) {
