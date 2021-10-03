@@ -70,7 +70,7 @@ class plexLibrariesPlugin extends Organizr
 	}
 
 
-	public function getPlexShares($includeAll = false,$userId) {
+	public function getPlexShares($includeAll = false,$userId = "") {
 		if (!empty($this->config['plexToken'])) {
 			$headers = array(
 				'Content-type: application/xml',
@@ -190,7 +190,7 @@ class plexLibrariesPlugin extends Organizr
 				"shared_server" => array(
 					"library_section_ids" => $NewShares
 			));
-			if ($userId != "None") {
+			if ($userId) {
 				$url = 'https://plex.tv/api/servers/'.$this->config['plexID'].'/shared_servers/'.$userId.'?X-Plex-Token='.$this->config['plexToken'];
 			} else {
 				$url = 'https://plex.tv/api/servers/'.$this->config['plexID'].'/shared_servers/'.$Shares->SharedServer->attributes()->id.'?X-Plex-Token='.$this->config['plexToken'];
