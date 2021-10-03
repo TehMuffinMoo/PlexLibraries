@@ -17,7 +17,7 @@ function plexLibrariesPluginLaunch(){
 				<div class="panel-body">
 					<div id="plexLibrariesTable">
 						<div class="white-box m-b-0">
-							<div class="col-12" style="width: 1514px">
+							<div class="col-12" style="width: 1514px" style="display:block">
 								<select name="plexUsers" id="plexUsers" style="width: 26%">
 										<option value="">- Plex User -</option>
 								</select><br>
@@ -38,24 +38,30 @@ function plexLibrariesPluginLaunch(){
 function plexLibrariesPluginLoadShares(){
 	$.getJSON( "api/v2/plugins/plexlibraries/shares", function( data ) {
 		$(function() {
-			// Plex Admin response contains all users shares, mark all toggles as disabled whilst this is a work in progress.
-			$.each(data.response.data.SharedServer, function(_, sharedServer) {
-				const thtml = $("#plexUsers ");
-				thtml.append('<option value="'+sharedServer['@attributes'].username+'">'+sharedServer['@attributes'].username+'</option>');
-				$.each(sharedServer.Section, function(_, obj) {
-					plexLibrariesPluginLoadSharesItem(obj,"disabled");
+			// Single Response
+			if (data.response.data.SharedServer.Section) {
+				$.each(data.response.data.SharedServer.Section, function(_, obj) {
+						plexLibrariesPluginLoadSharesItem(obj,"","");
 				});
-			});
-			$.each(data.response.data.SharedServer.Section, function(_, obj) {
-					plexLibrariesPluginLoadSharesItem(obj,"");
-			});
+			} else {
+				// Plex Admin response contains all users shares, mark all toggles as disabled whilst this is a work in progress.
+				$.each(data.response.data.SharedServer, function(_, sharedServer) {
+					const thtml = $("#plexUsers ");
+					var username = sharedServer['@attributes'].username;
+					thtml.append('<option value="'+username+'">'+sharedServer['@attributes'].username+'</option>');
+					$.each(sharedServer.Section, function(_, obj) {
+						plexLibrariesPluginLoadSharesItem(obj,"disabled",username);
+					});
+				});
+			}
 			const thtml = $("#plexLibraries ");
 			thtml.append('<script>onToggle();</script>');
+			thtml.append('<script>onSelect();</script>');
 		});
 	});
 }
 
-function plexLibrariesPluginLoadSharesItem(obj,disabled){
+function plexLibrariesPluginLoadSharesItem(obj,disabled,username){
 	const thtml = $("#plexLibraries ");
 	var mediaType = obj['@attributes'].type
 	var mediaShared = obj['@attributes'].shared
@@ -82,9 +88,14 @@ function plexLibrariesPluginLoadSharesItem(obj,disabled){
 	if (mediaShared == 1) {
 		var checked = "checked";
 	}
+	if (username === "") {
+		var display = "true"
+	} else {
+		var display = "none"
+	}
 	$.each(obj, function(_, text) {
 		thtml.append('\
-		<div class="col-md-3 col-xs-6 p-l-0 p-r-0 text-center">\
+		<div class="col-md-3 col-xs-6 p-l-0 p-r-0 text-center plexUser ' + username + '" style="display:' + display + '">\
 			<p class="text-' + mediaIconColour + '"><i class="ti-' + mediaIcon + ' fa-2x"></i></p>\
 			<h4 class="">' + obj['@attributes'].title + '</h4>\
 			<input type="checkbox" class="js-switch plexLibraries" data-size="small" data-color="#99d683" data-secondary-color="#f96262" value="' + obj['@attributes'].id + '" ' + checked + ' ' + disabled +'>\
@@ -100,6 +111,20 @@ function onToggle() {
         } else {
             updateStatus(this.value,"unchecked");
         }
+    });
+}
+
+function onSelect() {
+    $('#plexUsers').change(function () {
+        alert(this.value);
+		var plexUsers = document.getElementsByClassName('plexUser');
+		var plexUser = document.getElementsByClassName(this.value);
+		for(i = 0; i < plexUsers.length; i++) {
+            i.style.display = "none";
+            }
+		for(i = 0; i < plexUser.length; i++) {
+            i.style.display = "block";
+            }
     });
 }
 
