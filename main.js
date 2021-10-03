@@ -17,8 +17,8 @@ function plexLibrariesPluginLaunch(){
 				<div class="panel-body">
 					<div id="plexLibrariesTable">
 						<div class="white-box m-b-0">
-							<div class="col-12" style="width: 1514px" style="display:block">
-								<select name="plexUsers" id="plexUsers" style="width: 26%">
+							<div class="col-12" style="width: 1514px">
+								<select name="plexUsers" id="plexUsers" style="width: 26%;display:none">
 										<option value="">- Plex User -</option>
 								</select><br>
 							</div>
@@ -47,6 +47,8 @@ function plexLibrariesPluginLoadShares(){
 				// Plex Admin response contains all users shares, mark all toggles as disabled whilst this is a work in progress.
 				$.each(data.response.data.SharedServer, function(_, sharedServer) {
 					const thtml = $("#plexUsers ");
+					var dropdown = document.getElementById('plexUsers');
+					dropdown.style.display = "block";
 					var username = sharedServer['@attributes'].username;
 					thtml.append('<option value="'+username+'">'+sharedServer['@attributes'].username+'</option>');
 					$.each(sharedServer.Section, function(_, obj) {
@@ -117,14 +119,16 @@ function onToggle() {
 function onSelect() {
     $('#plexUsers').change(function () {
         alert(this.value);
-		var plexUsers = document.getElementsByClassName('plexUser');
-		var plexUser = document.getElementsByClassName(this.value);
-		for(i = 0; i < plexUsers.length; i++) {
-            i.style.display = "none";
-            }
-		for(i = 0; i < plexUser.length; i++) {
-            i.style.display = "block";
-            }
+		Array.from(document.getElementsByClassName('plexUser')).forEach(
+			function(element, index, array) {
+				element.style.display = "none";
+			}
+		);
+		Array.from(document.getElementsByClassName(this.value)).forEach(
+			function(element, index, array) {
+				element.style.display = "block";
+			}
+		);
     });
 }
 
