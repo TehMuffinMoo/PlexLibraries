@@ -6,4 +6,5 @@
 return array(
 	'PLEXLIBRARIES-enabled' => false,
 	'PLEXLIBRARIES-librariesToInclude' => '',
+	'PLEXLIBRARIES-pluginAuth' => '1'
 );
