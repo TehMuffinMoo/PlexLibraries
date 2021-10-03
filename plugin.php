@@ -151,6 +151,9 @@ class plexLibrariesPlugin extends Organizr
     }
 
 	public function updatePlexShares($data) {
+		$shareData = explode(":", $data["shareData"]);
+		$shareId = $shareData[0];
+		$userId = $shareData[1];
 		if ($data["checked"] == "checked") {
 			$Shares = $this->getPlexShares(true);
 			$xpath = $Shares->xpath('//SharedServer//Section[@shared="1"]');
@@ -159,21 +162,21 @@ class plexLibrariesPlugin extends Organizr
 				$ShareString = (string)$Share->attributes()->id;
 				$NewShares[] = $ShareString;
 			}
-			if (!in_array($data["shareId"], $NewShares)) {
-				$NewShares[] = $data["shareId"];
+			if (!in_array($shareId, $NewShares)) {
+				$NewShares[] = $shareId;
 			}
-			$Msg = "Enabling ".$data["shareId"];
+			$Msg = "Enabling ".$shareId." on user: ".$userId;
 		} else {
 			$Shares = $this->getPlexShares(true);
 			$xpath = $Shares->xpath('//SharedServer//Section[@shared="1"]');
 			$NewShares = array();
 			foreach ($xpath as $Share) {
 				$ShareString = (string)$Share->attributes()->id;
-				if ($ShareString != $data["shareId"]) {
+				if ($ShareString != $shareId) {
 					$NewShares[] = $ShareString;
 				}
 			}
-			$Msg = "Disabling ".$data["shareId"];
+			$Msg = "Disabling ".$shareId." on user: ".$userId;
 		}
 		if (empty($NewShares)) {
 			$this->setAPIResponse('error', 'You must have at least one share.', 400);
@@ -183,7 +186,11 @@ class plexLibrariesPlugin extends Organizr
 				"shared_server" => array(
 					"library_section_ids" => $NewShares
 			));
-			$url = 'https://plex.tv/api/servers/'.$this->config['plexID'].'/shared_servers/'.$Shares->SharedServer->attributes()->id.'?X-Plex-Token='.$this->config['plexToken'];
+			if ($userId != "None") {
+				$url = 'https://plex.tv/api/servers/'.$this->config['plexID'].'/shared_servers/'.$userId.'?X-Plex-Token='.$this->config['plexToken'];
+			} else {
+				$url = 'https://plex.tv/api/servers/'.$this->config['plexID'].'/shared_servers/'.$Shares->SharedServer->attributes()->id.'?X-Plex-Token='.$this->config['plexToken'];
+			}
 			$response = $this->call_endpoint($url, "PUT", $http_body);
 			$this->setAPIResponse('success', $Msg, 200);
 		}

@@ -41,7 +41,7 @@ function plexLibrariesPluginLoadShares(){
 			// Single Response
 			if (data.response.data.SharedServer.Section) {
 				$.each(data.response.data.SharedServer.Section, function(_, obj) {
-						plexLibrariesPluginLoadSharesItem(obj,"","");
+						plexLibrariesPluginLoadSharesItem(obj,"","","");
 				});
 			} else {
 				// Plex Admin response contains all users shares, mark all toggles as disabled whilst this is a work in progress.
@@ -50,9 +50,10 @@ function plexLibrariesPluginLoadShares(){
 					var dropdown = document.getElementById('plexUsers');
 					dropdown.style.display = "block";
 					var username = sharedServer['@attributes'].username;
-					thtml.append('<option value="'+username+'">'+sharedServer['@attributes'].username+'</option>');
+					var userId = sharedServer['@attributes'].id;
+					thtml.append('<option value="'+username+'">'+username+'</option>');
 					$.each(sharedServer.Section, function(_, obj) {
-						plexLibrariesPluginLoadSharesItem(obj,"disabled",username);
+						plexLibrariesPluginLoadSharesItem(obj,"",username,userId);
 					});
 				});
 			}
@@ -63,7 +64,7 @@ function plexLibrariesPluginLoadShares(){
 	});
 }
 
-function plexLibrariesPluginLoadSharesItem(obj,disabled,username){
+function plexLibrariesPluginLoadSharesItem(obj,disabled,username,userId){
 	const thtml = $("#plexLibraries ");
 	var mediaType = obj['@attributes'].type
 	var mediaShared = obj['@attributes'].shared
@@ -92,6 +93,7 @@ function plexLibrariesPluginLoadSharesItem(obj,disabled,username){
 	}
 	if (username === "") {
 		var display = "true"
+		var username = "none"
 	} else {
 		var display = "none"
 	}
@@ -100,7 +102,7 @@ function plexLibrariesPluginLoadSharesItem(obj,disabled,username){
 		<div class="col-md-3 col-xs-6 p-l-0 p-r-0 text-center plexUser ' + username + '" style="display:' + display + '">\
 			<p class="text-' + mediaIconColour + '"><i class="ti-' + mediaIcon + ' fa-2x"></i></p>\
 			<h4 class="">' + obj['@attributes'].title + '</h4>\
-			<input type="checkbox" class="js-switch plexLibraries" data-size="small" data-color="#99d683" data-secondary-color="#f96262" value="' + obj['@attributes'].id + '" ' + checked + ' ' + disabled +'>\
+			<input type="checkbox" class="js-switch plexLibraries" data-size="small" data-color="#99d683" data-secondary-color="#f96262" value="' + obj['@attributes'].id + ':' + userId + '" ' + checked + ' ' + disabled +'>\
 		</div>\
 		');
 	});
@@ -135,7 +137,7 @@ function updateStatus(value,checked) {
     $.ajax({
         type: "POST",
         url: "api/v2/plugins/plexlibraries/shares",
-        data: {toggle_update: true, shareId: value, checked: checked},
+        data: {toggle_update: true, shareData: value, checked: checked},
         success: function (result) {
             console.log(result);
         }
