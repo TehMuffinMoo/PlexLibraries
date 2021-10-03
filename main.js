@@ -187,7 +187,7 @@ function plexLibrariesPluginUpdateShare(userId, action, shareId) {
 			organizrCatchError(e,data);
 		}
 	}).fail(function(xhr) {
-		message('Plex Share',response.message,activeInfo.settings.notifications.position,"#FFF","error","5000");
+		message('Plex Share',xhr.responseJSON.response.message,activeInfo.settings.notifications.position,"#FFF","error","5000");
 		$('#plexLibrariesTable').unblock();
 		OrganizrApiError(xhr);
 	});
