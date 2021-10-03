@@ -118,7 +118,6 @@ function onToggle() {
 
 function onSelect() {
     $('#plexUsers').change(function () {
-        alert(this.value);
 		Array.from(document.getElementsByClassName('plexUser')).forEach(
 			function(element, index, array) {
 				element.style.display = "none";
