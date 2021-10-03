@@ -150,7 +150,6 @@ class plexLibrariesPlugin extends Organizr
 					$this->setResponse(500, 'Plex Error', $response->body);
 					return false;
 				}
-				return $shareXML;
 			} catch (Requests_Exception $e) {
 				$this->writeLog('error', 'PlexLibraries Plugin - Error: ' . $e->getMessage(), 'SYSTEM');
 				$this->setAPIResponse('error', 'PlexLibraries Plugin - Error: ' . $e->getMessage(), 400);
@@ -172,6 +171,19 @@ class plexLibrariesPlugin extends Organizr
 		if (!$shareId) {
 			$this->setResponse(409, 'Share Id not supplied');
 			return false;
+		}
+		if (!$this->qualifyRequest(1)) {
+			$plexUsers = $this->allPlexUsers(false, true);
+			$key = array_search($this->user['email'], array_column($plexUsers, 'email'));
+			if (!$key) {
+				$this->setResponse(404, 'User Id was not found in Plex Users');
+				return false;
+			} else {
+				if ($plexUsers[$key]['shareId'] !== $userId) {
+					$this->setResponse(401, 'You are not allowed to edit someone else\'s plex share');
+					return false;
+				}
+			}
 		}
 		$Shares = $this->plexLibrariesPluginGetPlexShares(true, $userId);
 		$NewShares = array();
@@ -201,7 +213,7 @@ class plexLibrariesPlugin extends Organizr
 			}
 		}
 		if (empty($NewShares)) {
-			$this->setAPIResponse('error', 'You must have at least one share.', 400);
+			$this->setResponse(409, 'You must have at least one share.');
 			return false;
 		} else {
 			$http_body = [
